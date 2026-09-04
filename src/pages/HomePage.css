@@ -1,0 +1,23 @@
+.homePage {
+  text-align: center;
+}
+
+.homeNav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.homeNavLink {
+  font-size: 18px;
+  padding: 12px 24px;
+  border: 1px solid rgba(168, 168, 168, 0.747);
+  text-decoration: none;
+  color: black;
+}
+
+.homeNavLink:hover {
+  background-color: rgba(168, 168, 168, 0.2);
+}

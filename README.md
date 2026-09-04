@@ -1,50 +1,29 @@
-# React + TypeScript + Vite
+# Personal Engineering Task Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+日々の開発タスクを、自分ひとりで素早く整理・確認するためのタスク状況管理ツールです。一般的なTodoリストではなく、エンジニアの仕事で頻出する「実装中」「レビュー待ち」「ブロッカー」を明示します。
 
-Currently, two official plugins are available:
+## 現在確認できること
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 今日やること / 進行中 / レビュー待ち / ブロック中 / 完了
+- タスクのクイック追加、検索、次ステータスへの更新
+- 優先度、プロジェクト、タグ、期限、ブロック理由の表示
 
-## Expanding the ESLint configuration
+データは現在Recoilのメモリ上に保持されるため、再読み込みすると初期状態へ戻ります。
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## 開発
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+品質確認は `npm run lint` と `npm run build` で行います。
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## 構成
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- `src/pages/TaskBoardPage.tsx`: メインのステータスボード
+- `src/states/engineeringTasksState.ts`: タスク一覧と集計
+- `src/types/tasks.ts`: ドメインモデルとステータス定義
+- `docs/PRODUCT.md`: 方針・スコープ・ロードマップ
+
+旧チュートリアル画面は移行期間中、`/todo` と `/grid` に残しています。

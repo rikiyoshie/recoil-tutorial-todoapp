@@ -1,21 +1,20 @@
-import { RecoilRoot } from "recoil";
-import "./App.css";
-import AddTask from "./components/AddTask";
-import InputTask from "./components/InputTask";
-import {AgGridReactTable} from './components/AgGridReactTable';
-// import { Routes, Route } from "react-router-dom";
+import { RecoilRoot } from 'recoil';
+import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import TaskBoardPage from './pages/TaskBoardPage';
+import TodoPage from './pages/TodoPage';
+import GridPage from './pages/GridPage';
 
 function App() {
   return (
     <RecoilRoot>
-      <div className="task">
-        <InputTask />
-        <AddTask />
-        <AgGridReactTable/>
-      </div>
-      {/* <Routes>
-        <Route path="/" element={<PageA />} />
-      </Routes> */}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<TaskBoardPage />} />
+          <Route path="/todo" element={<TodoPage />} />
+          <Route path="/grid" element={<GridPage />} />
+        </Routes>
+      </BrowserRouter>
     </RecoilRoot>
   );
 }
