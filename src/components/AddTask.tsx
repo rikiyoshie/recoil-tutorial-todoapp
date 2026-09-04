@@ -1,8 +1,8 @@
 // import React from "react";
-import { useRecoilValue } from "recoil";
-import { addTitleState, addTitleStateLength } from "../states/addTitleState";
-import { Tasks } from "../types/tasks";
-import "./AddTask.css";
+import { useRecoilValue } from 'recoil';
+import { addTitleState, addTitleStateLength } from '../states/addTitleState';
+import { Tasks } from '../types/tasks';
+import './AddTask.css';
 
 const AddTask = () => {
   const addTitle = useRecoilValue(addTitleState);
