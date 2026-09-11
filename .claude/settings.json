@@ -1,4 +1,13 @@
 {
+    "permissions": {
+    "allow": [
+      "Read(./src/**)",
+      "Read(./docs/**)",
+      "Read(./package.json)",
+      "Read(./.claude/hooks/**)",
+      "Read(./.claude/settings.json)",
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
@@ -9,6 +18,15 @@
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/post-edit-checks.sh\"",
             "timeout": 180,
             "statusMessage": "lint / format / typecheck を実行中..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-main-push.sh"
           }
         ]
       }
