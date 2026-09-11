@@ -1,0 +1,72 @@
+# プルリクエストを開く / 更新するたびに Claude Code GitHub Action が
+# 自動でレビューする。差分の取得と指摘のインラインコメント投稿には
+# claude-code-action に内蔵された GitHub MCP サーバー
+# (mcp__github_inline_comment__create_inline_comment) を使う。
+#
+# 事前準備（リポジトリ管理者が一度だけ行う）:
+#   1. Claude GitHub App を導入する: https://github.com/apps/claude
+#   2. リポジトリの Secrets に ANTHROPIC_API_KEY を追加する
+#      （Claude サブスクリプションを使う場合は代わりに CLAUDE_CODE_OAUTH_TOKEN を
+#        追加し、下の anthropic_api_key 行を
+#        claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }} に置き換える）
+
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# 同じ PR で新しい push があったら古いレビューはキャンセルする
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # 下書き PR はレビューしない
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # git diff でベースブランチとの差分を取るため全履歴を取得する
+          fetch-depth: 0
+
+      - name: Claude PR Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            リポジトリ ${{ github.repository }} のプルリクエスト #${{ github.event.pull_request.number }} をレビューしてください。
+
+            変更差分は `git diff origin/${{ github.base_ref }}...HEAD` で取得できます。
+            指摘は該当行に mcp__github_inline_comment__create_inline_comment で
+            インラインコメントとして投稿し、最後に全体所感を 1 つのコメントにまとめてください。
+            コメントはすべて日本語で書いてください。
+
+            ## レビュー観点（この Recoil チュートリアル Todo アプリ固有）
+            1. 正しさ: ロジックのバグ、型の不整合、null / undefined 参照、非同期処理の考慮漏れ。
+            2. Recoil の状態管理パターン整合性:
+               - 1 状態 1 ファイルの原則（`src/states/`）が守られているか。
+               - 派生値は `selector` で導出し、atom に冗長に持たせていないか（`addTitleStateLength` のパターン）。
+               - 入力中のドラフト状態（`inputTitleState`）と確定済みリスト状態（`addTitleState`）が分離されているか。
+               - `useRecoilState` / `useRecoilValue` / `useSetRecoilState` を目的に応じて使い分けているか。
+            3. 型定義: `src/types/tasks.ts` の `Tasks` 型など共有型が state と components 間で一貫して使われているか。
+            4. ID / key 生成: `Math.random().toString(32)` のような既存パターンとの一貫性、React の `key` props の妥当性。
+            5. 不要な複雑化の回避: 規模に見合わない抽象化やリクエストされていないリファクタリングが混ざっていないか。
+            6. コメント言語: 追加 / 変更するコメントが日本語の慣習に沿っているか。
+
+            指摘は `file:line` 形式で具体的に示してください。
+            確信度の低い指摘は「懸念点」として明確なバグと区別してください。
+            重大な問題がなければ、その旨を簡潔に 1 コメントで伝えてください。冗長な称賛は不要です。
+          claude_args: |
+            --model claude-sonnet-5
+            --max-turns 20
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(git diff:*),Bash(git log:*),Bash(git show:*)"

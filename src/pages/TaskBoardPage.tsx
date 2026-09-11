@@ -18,6 +18,8 @@ const priorityLabel: Record<EngineeringTask['priority'], string> = {
 };
 const nextStatus = (status: TaskStatus): TaskStatus =>
   TASK_STATUSES[Math.min(TASK_STATUSES.indexOf(status) + 1, TASK_STATUSES.length - 1)];
+const prevStatus = (status: TaskStatus): TaskStatus =>
+  TASK_STATUSES[Math.max(TASK_STATUSES.indexOf(status) - 1, 0)];
 const createId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
@@ -55,10 +57,19 @@ const TaskBoardPage = () => {
     ]);
     setTitle('');
   };
+
+  // タスクのステータスを進める関数と戻す関数aaaaaa
   const advanceTask = (task: EngineeringTask) =>
     setTasks((currentTasks) =>
       currentTasks.map((item) =>
         item.id === task.id ? { ...item, status: nextStatus(item.status) } : item,
+      ),
+    );
+
+  const retreatTask = (task: EngineeringTask) =>
+    setTasks((currentTasks) =>
+      currentTasks.map((item) =>
+        item.id === task.id ? { ...item, status: prevStatus(item.status) } : item,
       ),
     );
 
@@ -107,7 +118,7 @@ const TaskBoardPage = () => {
       <section className="board" aria-label="ステータス別タスクボード">
         {TASK_STATUSES.map((status) => {
           const columnTasks = visibleTasks.filter((task) => task.status === status);
-          return (
+  return (
             <section className={`boardColumn boardColumn--${status}`} key={status}>
               <header className="columnHeader">
                 <div>
@@ -134,6 +145,11 @@ const TaskBoardPage = () => {
                     </div>
                     <footer className="taskFooter">
                       <span>{task.dueDate ?? '期限なし'}</span>
+                      {task.status !== 'today' && (
+                        <button type="button" onClick={() => retreatTask(task)}>
+                          ← 前へ
+                        </button>
+                      )}
                       {task.status !== 'done' && (
                         <button type="button" onClick={() => advanceTask(task)}>
                           次へ →
