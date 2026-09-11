@@ -57,6 +57,8 @@ const TaskBoardPage = () => {
     ]);
     setTitle('');
   };
+
+  // タスクのステータスを進める関数と戻す関数aaaaaa
   const advanceTask = (task: EngineeringTask) =>
     setTasks((currentTasks) =>
       currentTasks.map((item) =>
